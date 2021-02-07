@@ -158,6 +158,10 @@ func (tx *Tx) Rollback() error {
 
 // RollbackEx is the context version of Rollback
 func (tx *Tx) RollbackEx(ctx context.Context) error {
+	if tx == nil {
+		return nil
+	}
+
 	if tx.status != TxStatusInProgress {
 		return ErrTxClosed
 	}
@@ -203,6 +207,9 @@ func (tx *Tx) Prepare(name, sql string) (*PreparedStatement, error) {
 
 // PrepareEx delegates to the underlying *Conn
 func (tx *Tx) PrepareEx(ctx context.Context, name, sql string, opts *PrepareExOptions) (*PreparedStatement, error) {
+	if tx == nil {
+		return nil, nil
+	}
 	if tx.status != TxStatusInProgress {
 		return nil, ErrTxClosed
 	}
@@ -217,6 +224,9 @@ func (tx *Tx) Query(sql string, args ...interface{}) (*Rows, error) {
 
 // QueryEx delegates to the underlying *Conn
 func (tx *Tx) QueryEx(ctx context.Context, sql string, options *QueryExOptions, args ...interface{}) (*Rows, error) {
+	if tx == nil {
+		return &Rows{closed: true, err: nil}, nil
+	}
 	if tx.status != TxStatusInProgress {
 		// Because checking for errors can be deferred to the *Rows, build one with the error
 		err := ErrTxClosed
@@ -240,6 +250,10 @@ func (tx *Tx) QueryRowEx(ctx context.Context, sql string, options *QueryExOption
 
 // CopyFrom delegates to the underlying *Conn
 func (tx *Tx) CopyFrom(tableName Identifier, columnNames []string, rowSrc CopyFromSource) (int, error) {
+	if tx == nil {
+		return 0, nil
+	}
+
 	if tx.status != TxStatusInProgress {
 		return 0, ErrTxClosed
 	}
@@ -249,6 +263,10 @@ func (tx *Tx) CopyFrom(tableName Identifier, columnNames []string, rowSrc CopyFr
 
 // CopyFromReader delegates to the underlying *Conn
 func (tx *Tx) CopyFromReader(r io.Reader, sql string) (commandTag CommandTag, err error) {
+	if tx == nil {
+		return CommandTag(""), nil
+	}
+
 	if tx.status != TxStatusInProgress {
 		return CommandTag(""), ErrTxClosed
 	}
@@ -258,6 +276,10 @@ func (tx *Tx) CopyFromReader(r io.Reader, sql string) (commandTag CommandTag, er
 
 // CopyToWriter delegates to the underlying *Conn
 func (tx *Tx) CopyToWriter(w io.Writer, sql string, args ...interface{}) (commandTag CommandTag, err error) {
+	if tx == nil {
+		return CommandTag(""), nil
+	}
+
 	if tx.status != TxStatusInProgress {
 		return CommandTag(""), ErrTxClosed
 	}
